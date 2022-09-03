@@ -2,7 +2,7 @@ This ahk script allows you to "pause buffer" inputs in Ship of Harkinian (SoH, a
 It achieves it by changing your controller configuration in SoH to "Keyboard" temporarily during unpause
 and then swapping it back to "Xbox Controller" once unpaused.
 
-✶ Controls:
+🎮 Controls:
 	• DPAD_UP: 			Pause/Frame Advance Pause
 	• DPAD_LEFT: 			Save State
 	• DPAD_DOWN: 			Next State
