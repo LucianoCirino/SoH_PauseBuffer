@@ -11,6 +11,7 @@ and then swapping it back to "Xbox Controller" once unpaused.
 
 ⚠ Warnings:
 	• Script only works if you have 3 options in SoH Controller Configuration: Xbox Controller, Keyboard, & Disconnect
+	• These controls must be default for the script to function properly: Keyboard/Controller "Start", Keyboard/Controller "Z"
 	• Frame Advance repause will fail if you are pressing start on controller while game is unpausing
 	• Frame Advance repause will "sometimes" fail to trigger  (area dependant?)
 	• Input buffers will fail if you unpause by Saving Game
