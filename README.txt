@@ -10,12 +10,12 @@ and then swapping it back to "Xbox Controller" once unpaused.
 	• DPAD_DOWN + DPAD_START: 	Game Reset
 
 ⚠ Warnings:
+	• Currently only works on SoH Rachael Bravo 3.0.1
 	• Script only works if you have 3 options in SoH Controller Configuration: Xbox Controller, Keyboard, & Disconnect
 	• These controls must be default for the script to function: Keyboard/Controller "Start", Keyboard/Controller "Z"
 	• Frame Advance repause will fail if you are pressing start on controller while game is unpausing
 	• Frame Advance repause will "sometimes" fail to trigger  (area dependant?)
 	• Input buffers will fail if you unpause by Saving Game
 	• If script isn't responding, try closing (1)Delfinovin, (2)SoH, & (3)Script, and then reopen them in that order
-	• Script currently only works on SoH Rachael Bravo 3.0.1
 
 Written by Luciano Cirino 09/03/2022
