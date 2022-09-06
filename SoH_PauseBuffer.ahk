@@ -1,6 +1,6 @@
 ﻿#SingleInstance Force
-;;==============================[Load Libraries]===============================
 SetTitleMatchMode 2  ; Avoids the need to specify the full path of files.
+;;==============================[Load Libraries]===============================
 #Include lib\Initialization.ahk
 #Include lib\XInput.ahk
 #Include lib\Functions.ahk
@@ -62,15 +62,22 @@ global state
 
 ;;=============================[Custom Functions]==============================
 SoHexeCheck(){
-     ;If "SoH.exe" not detected, loop until it does and then reload
-     If (!!ProcessPID("SoH.Exe") = False){
-          CleanExit()
-          While (!!ProcessPID("SoH.Exe") = False){
-               Sleep, 1000
-          }
-          Sleep, 1500
-          Reload
+     ;If "SoH.exe" not detected, loop until it is
+     If (!!ProcessPID("SoH.Exe") = false){
+          While (!!ProcessPID("SoH.Exe") = false)
+               QPC(2000)
+          QPC(2000)
+          ;Re-initialize memory reads
+          MemReInit()
      }
+   
+     ;If in Main menu, loop until you aren't
+     If (GetGameState()<2){
+          while (GetGameState()<2)
+               QPC(200)
+          ;Re-initialize memory reads
+          MemReInit()
+     }       
 }
 
 ;Check if XInput button is being pressed (only wButtons)
@@ -92,8 +99,8 @@ InitVars(){
      ;Initialize XInput function
      XInput_Init()
 
-     ;Change Controller 1's status to "Xbox Controller"
-     changeP1status(0)
+     ;Change p1's controller index to 0 (Game Controller)
+     ChangeP1Controller(0)
 
      ;Reset keyboard commands
      send {z up}
@@ -102,17 +109,20 @@ InitVars(){
      send {F6 up}
      send {F7 up}
 }
-
-OnExit("InitVars")
-
 InitVars()
+OnExit("InitVars")
 
 ;;================================[Main Loop]==================================
 ;Main Loop
 Main:
 
+     ;Check that Soh is still open
      SoHexeCheck()
+
+     ;Read & store your Controller's state
      state := Xinput_GetState(0)
+
+     ;Check if pressed a Hotkey
      SoHhotkeys()
 
      ;Loop while pause is pressed
@@ -125,11 +135,11 @@ Main:
 
      ;Allow you to pause if "GAMEPAD_DPAD_UP" is pressed (and loop until released)
      if XonlyDPAD(XINPUT_GAMEPAD_DPAD_UP){
-          changeP1status(1)
+          ChangeP1Controller("Keyboard")
           send {space down}
-          PreciseSleep(51)
+          QPC(51)
           send {space up}
-          changeP1status(0)
+          ChangeP1Controller(0)
           state := Xinput_GetState(0)
           While Xpressed(XINPUT_GAMEPAD_DPAD_UP){
                state := Xinput_GetState(0)
@@ -141,8 +151,13 @@ Main:
      while (GetPauseMenuState() >= 0x06){
           Paused:
 
+          ;Check that Soh is still open
           SoHexeCheck()
+
+          ;Read & store your Controller's state
           state := Xinput_GetState(0)
+
+          ;Check if pressed a Hotkey
           SoHhotkeys()
 
           ;Check that pressed "GAMEPAD_START" or "GAMEPAD_DPAD_UP"
@@ -153,19 +168,19 @@ Main:
 
                ;If DPAD_UP detected send KB "Start" down (For frame advance logic)
                if Xpressed(XINPUT_GAMEPAD_DPAD_UP){
-                    changeP1status(1)
+                    ChangeP1Controller("Keyboard")
 	            send {space down}
                }
 
-               ;Eliminate retriggering lock-on if already being held
-  	       if ((state.bLeftTrigger=255) & !Getkeystate("z")) ;& GetFocusStatus())
+            ;Eliminate retriggering lock-on if already being held
+  	       if ((state.bLeftTrigger=255) & !Getkeystate("z"))
 	            send {z down}
 
                ;Give time for Controller command to reach SoH
-               PreciseSleep(51)
+               QPC(51)
 
-               ;Change Controller 1's status to "Keyboard"
-               changeP1status(1)
+               ;Change p1's control as "Keyboard"
+               ChangeP1Controller("Keyboard")
       
                ;Wait until game unpauses
                While (GetPauseMenuState() <> 0x00) {
@@ -173,7 +188,7 @@ Main:
                     SoHresetCheck()
                     ;if it fails to do so in 400ms return to "Paused" sub and reset variables
                     if ((A_TickCount - Time) > 400){
-                        changeP1status(0)
+                        ChangeP1Controller(0)
 	                send {space up}
 	                send {z up}
                         goto Paused
@@ -184,15 +199,15 @@ Main:
 	                send {space down}
                }
 
-               ;Change Controller 1's status to "Xbox Controller"
-               changeP1status(0)
+               ;Change p1's controller index to 0 (Game Controller)
+               ChangeP1Controller(0)
 
                ;Frame Advance Logic
                if getkeystate("space"){
-                    precisesleep(35)	;This specific timing seems to work on 3.0.0 and 3.0.1
-                    changeP1status(1)                                                                                                                            
+                    QPC(60)	;This specific timing seems to work
+                    ChangeP1Controller("Keyboard")                                                                                                                          
                     send {space down}
-                    precisesleep(51)
+                    QPC(51)
                }
 
                ;For testing pause lag
@@ -204,9 +219,9 @@ Main:
 
                ;Return to Main Sub
                goto Main
-     }
 
-}
+          } ;Unpausing
+     } ;Paused
 
 goto Main ;loop back
 Return
@@ -218,7 +233,7 @@ SoHhotkeys(){
      ;SaveState
      if XonlyDPAD(XINPUT_GAMEPAD_DPAD_LEFT){
           Send {F5 down}
-          PreciseSleep(51)
+          QPC(51)
           Send {F5 up}
 
           ;Loop until released
@@ -229,7 +244,7 @@ SoHhotkeys(){
      ;NextState
      if XonlyDPAD(XINPUT_GAMEPAD_DPAD_DOWN){
           Send {F6 down}
-          PreciseSleep(51)
+          QPC(51)
           Send {F6 up}
 
           ;Loop until released
@@ -240,7 +255,7 @@ SoHhotkeys(){
      ;LoadState
      if XonlyDPAD(XINPUT_GAMEPAD_DPAD_RIGHT){
           Send {F7 down}
-          PreciseSleep(51)
+          QPC(51)
           Send {F7 up}
 
           ;Loop until released
@@ -250,13 +265,13 @@ SoHhotkeys(){
      }
 }
 
-;Seperated from hotkeys since hotkeys function not allowed (by me) during unpause
+;This hotkey is seperated from others since other hotkeys will not allowed to run during unpause
 SoHresetCheck(){
     ;ResetGame
     if (Xpressed(XINPUT_GAMEPAD_DPAD_DOWN) & Xpressed(XINPUT_GAMEPAD_START)){
          Send {Ctrl down}
          Send {R down}
-         PreciseSleep(51)
+         QPC(51)
          Send {Ctrl up}
          Send {R up}
          Reload          
