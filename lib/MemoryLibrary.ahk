@@ -1,63 +1,83 @@
-﻿;;===============================[SoH Memory Info]=============================
+﻿;;==========================[SoH Memory Definitions]===========================
 global prcName := "SoH.exe"
-mem := new _ClassMemory("ahk_exe SoH.exe",, hProcessCopy)
+global mem := new _ClassMemory("ahk_exe SoH.exe",, hProcessCopy)
 global bAddress := mem.BaseAddress
 global prcId := Memory_GetProcessID(prcName)
 global prcHandle := Memory_GetProcessHandle(prcId)
-   
-;global P1statusOffsets := [0xEB1FF0, 0x00 , 0x00]	;SoH 3.0.0
-global P1statusOffsets := [0xEB3430, 0x00 , 0x00]	;SoH 3.0.1
-global P1statusAddress := GetAddressPtrChain(P1statusOffsets)
 
-;global PauseMenuOffsets := [0xE4B3D8, 0x68, 0x68, 0x11190]	;SoH 3.0.0
-global PauseMenuOffsets := [0xE4E798, 0x11190]			;SoH 3.0.1
+Global SoHversion := 1 
+/*
+[0] Rachael Alfa 3.0.0
+[1] Rachael Bravo 3.0.1
+[2] Zhora Develop Build 151
+*/
+Switch SoHversion
+{
+Case 0: ;Rachael Alfa 3.0.0 pointers
+    global GameStateOffsets := [0xEC8338,0x110]
+    global P1ControllerOffsets := [0xEB1FF0, 0x00 , 0x00]
+    global ControllerCountOffsets := [0xEB1FF0, 0x00 , 0xC]
+    global PauseMenuOffsets := [0xE4B3D8, 0x68, 0x68, 0x11190]
+
+Case 1: ;Rachael Bravo 3.0.1 pointers
+     global GameStateOffsets := [0xECA038, 0x110]
+     global P1ControllerOffsets := [0xEB3430, 0x00 , 0x00]
+     global ControllerCountOffsets := [0xEB3430, 0x00 , 0xC]
+     global PauseMenuOffsets := [0xE4E798, 0x11190]	
+
+Case 2: ;Zhora Develop Build 151 pointers
+     global GameStateOffsets := [0xDDD398,0x110]
+     global P1ControllerOffsets := [0xDABA50, 0x40, 0x00 , 0x00]
+     global ControllerCountOffsets := [0xDABA50, 0x40, 0x00 , 0xC]
+     global PauseMenuOffsets := [0xDE4130, 0x11150]	
+
+Default: 
+     ;N/A    
+}
+
+;Find final Address through pointer chain
+global GameStateAddress := GetAddressPtrChain(GameStateOffsets)
+global P1ControllerAddress := GetAddressPtrChain(P1ControllerOffsets)
+global ControllerCountAddress := GetAddressPtrChain(ControllerCountOffsets)
 global PauseMenuAddress := GetAddressPtrChain(PauseMenuOffsets)
 
-/* Unused
-;global FocusDetectOffsets := [0xE4BBF8, 0x1B8, 0xF8C]	;SoH 3.0.0
-global FocusDetectOffsets := [0xE4C578, 0x00, 0x6C]	;SoH 3.0.1
-global FocusDetectAddress := GetAddressPtrChain(FocusDetectOffsets)
+;;Run to reinitialize Memory Reading
+MemReInit(){
+   ;Base Address
+   mem := new _ClassMemory("ahk_exe SoH.exe",, hProcessCopy)
+   bAddress := mem.BaseAddress
+   prcId := Memory_GetProcessID(prcName)
+   prcHandle := Memory_GetProcessHandle(prcId)
 
-;global PauseDetectOffsets := [0xEC8338,0x110]	;SoH 3.0.0
-;global PauseDetectOffsets := [???]		;SoH 3.0.1
-;global PauseDetectAddress := GetAddressPtrChain(PauseDetectOffsets)
-
-;global SaveSelectOffsets := [0xE4D878, 0x1121E]	;SoH 3.0.0
-;global SaveSelectOffsets := [???]			;SoH 3.0.1
-;global SaveSelectAddress := GetAddressPtrChain(SaveSelectOffsets)
-
-;global BombCountOffsets := [0xCE7028, 0x460]	;SoH 3.0.0
-;global BombCountOffsets := [???]		;SoH 3.0.1
-;global BombCountAddress := GetAddressPtrChain(BombCountOffsets)
-*/
-
-OnExit("CleanExit")
+   ;Pointers
+   GameStateAddress := GetAddressPtrChain(GameStateOffsets)
+   P1ControllerAddress := GetAddressPtrChain(P1ControllerOffsets)
+   ControllerCountAddress := GetAddressPtrChain(ControllerCountOffsets)
+   PauseMenuAddress := GetAddressPtrChain(PauseMenuOffsets)
+}
 
 ;;=======================[SoH Mem Read/Write Functions]========================
-;;Run to rescan ptr addresses
-ReScanPtrs(){
-   P1statusAddress := GetAddressPtrChain(P1statusOffsets)
-   PauseDetectAddress := GetAddressPtrChain(PauseDetectOffsets)
+;Get the used controller 1 index
+GetP1Controller(){
+   return Memory_Read(prcHandle, P1ControllerAddress, "byte", 4)
 }
 
-;;Get the status of controller 1 [0: Xbox Cont, 1: Keyboard, 2: Disconnected]
-GetP1status(){
-   return Memory_Read(prcHandle, P1statusAddress, "byte", 4)
-}
+;Function to write to the used index of controller 1, you can feed it an integer or "Keyboard" & "Disconnected"
+ChangeP1Controller(Index){
 
-;;Function to write the status of controller 1 [0: Xbox Cont, 1: Keyboard, 2: Disconnected]
-changeP1status(status){
-   Memory_Write(prcHandle, P1statusAddress, status)
-}
+   MaxIndex := Memory_Read(prcHandle, ControllerCountAddress, "byte", 2)
 
-;;Get pause status
-;[0: Unpaused , 1: Paused]
-GetPauseStatus(){
-   ;Actual memory read returns [1: Main Menu , 2: Paused, 3: Unpaused]
-   if (Memory_Read(prcHandle, PauseDetectAddress, "byte", 4) = 2)
-      return 1
+   if (Index = "Keyboard")
+      Memory_Write(prcHandle, P1ControllerAddress, MaxIndex-1)
+   else if (Index = "Disconnected")
+      Memory_Write(prcHandle, P1ControllerAddress, MaxIndex)
    else
-      return 0
+       Memory_Write(prcHandle, P1ControllerAddress, Index)
+}
+
+;Get Game State [1: Main Menu , 2: Paused, 3: Unpaused]
+GetGameState(){
+   return Memory_Read(prcHandle, GameStateAddress, "byte", 1)
 }
 
 ;;Get focus camera status
@@ -77,11 +97,11 @@ GetBombCount(){
 
 ;Returns a variety of values depending on the pause menu location
 ;0x00:Unpaused  , 0x02:Pausing  , 0x04:MenuOpening1 , 0x05:MenuOpening2, 
-;0x06:PauseMenu , 0x07:SaveMenu , 0x12:Unpausing*   , 0x13:Unpaused End*	(*Only trigger if unpausing from outside Save Menu)
+;0x06:PauseMenu , 0x07:SaveMenu , 0x12:Unpausing*   , 0x13:Unpaused End*	
+;*Only triggers if unpausing from outside the Save Menu
 GetPauseMenuState(){
      return Memory_Read(prcHandle, PauseMenuAddress, "byte", 1)
 }
-
 
 ;Return current save select menu answer [0x00:Yes(true), 0x04:No(false)]
 GetSaveSelection(){
@@ -102,8 +122,7 @@ CleanExit() {
    Memory_CloseHandle(prcHandle)
 }
 
-;;Based on: https://github.com/kevrgithub/autohotkey/blob/master/Lib/Memory.ahk
-
+;Based on: https://github.com/kevrgithub/autohotkey/blob/master/Lib/Memory.ahk
 Memory_GetProcessID(process_name) {
     Process, Exist, %process_name%
     return ErrorLevel
@@ -151,3 +170,5 @@ GetAddressPtrChain(ptrOffsets) {
    }
    return address
 }
+
+OnExit("CleanExit")

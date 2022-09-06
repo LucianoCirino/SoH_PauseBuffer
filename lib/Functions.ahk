@@ -4,6 +4,18 @@ PreciseSleep(duration) {
    DllCall("Sleep","UInt",duration)
 }
 
+;;Precise Sleep using QueryPerformanceCounter (Best)
+QPC(value){
+    static Frequency
+    if !Frequency
+        DllCall("QueryPerformanceFrequency", "Int64*", Frequency)
+    DllCall("QueryPerformanceCounter", "Int64*", Start)
+    Finish := Start + ( Frequency * (value/1000))
+    loop 
+      DllCall("QueryPerformanceCounter", "Int64*", Current)
+    until (Current >= Finish)
+    return
+}
 ;;===============================[Kill All AHK]================================
 AHKPanic(Kill=0, Pause=0, Suspend=0, SelfToo=0) {
 DetectHiddenWindows, On
