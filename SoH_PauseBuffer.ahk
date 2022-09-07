@@ -64,19 +64,26 @@ global state
 SoHexeCheck(){
      ;If "SoH.exe" not detected, loop until it is
      If (!!ProcessPID("SoH.Exe") = false){
+          CleanExit()
           While (!!ProcessPID("SoH.Exe") = false)
                QPC(2000)
-          QPC(2000)
-          ;Re-initialize memory reads
+          QPC(1000)
           MemReInit()
      }
-   
+     MainMenuCheck()
+}
+MainMenuCheck(){
      ;If in Main menu, loop until you aren't
      If (GetGameState()<2){
-          while (GetGameState()<2)
-               QPC(200)
-          ;Re-initialize memory reads
-          MemReInit()
+          while ((GetGameState()<1) & (!!ProcessPID("SoH.Exe") = true)){
+               QPC(500)
+               ;Re-initialize memory reads
+               MemReInit()
+          }
+          ;Reload Script once you re-enter game (I could not get it to rehook without a script reload)
+          while (GetGameState()=1)
+               QPC(200)    
+          Reload    
      }       
 }
 
@@ -109,13 +116,15 @@ InitVars(){
      send {F6 up}
      send {F7 up}
 }
+
+;;=============================[Initializations]===============================
+MemReInit()
 InitVars()
 OnExit("InitVars")
 
 ;;================================[Main Loop]==================================
 ;Main Loop
 Main:
-
      ;Check that Soh is still open
      SoHexeCheck()
 
