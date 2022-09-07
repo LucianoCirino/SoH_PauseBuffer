@@ -6,7 +6,7 @@ during unpause and then swapping it back to the first listed "Controller" once u
 	• DPAD_UP: 			Pause/Frame Advance Pause
 	• DPAD_LEFT: 			Save State
 	• DPAD_DOWN: 			Next State
-	• DPAD_DOWN: 			Load State
+	• DPAD_RIGHT: 			Load State
 	• DPAD_DOWN + DPAD_START: 	Game Reset
 
 🌟 Notes:
