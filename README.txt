@@ -9,19 +9,18 @@ and then swapping it back to the first listed "Controller" once unpaused.
 	• DPAD_DOWN: 			Load State
 	• DPAD_DOWN + DPAD_START: 	Game Reset
 
+🌟 Notes:
+	• To activate Z-Lock or change Z-Locked target, press the Z-Lock button AFTER having begun unpausing.
+        • To keep Z-Lock active (and not change targets), hold the Z-Lock button BEFORE unpausing. 
+	
 ✔ Supported Version(s):
         • Ship of Harkinian: Rachael Bravo 3.0.1
 
 ⚠ Warnings:
 	• Script was designed to be used with an XInput Controller (Gamecube + Delfinovin for example).
-	• These controls must be default for the script to function: Keyboard/Controller "Start", Keyboard/Controller "Z".
+	• These controls must be default for the script to function: Keyboard/Controller "Start" & "Z".
         • Frame Advance repause will fail if you are pressing start on controller while game is unpausing.
 	• Frame Advance repause will "sometimes" fail to trigger (area dependant?).
 	• Input buffers will fail if you unpause by Saving Game.
 
-🌟 Other:
-	• To change Links's Z-Lock status or target, press the Z-Lock button AFTER having begun unpausing.
-        • To keep Links Z-Lock status, hold the Z-Lock button BEFORE unpausing. 
-
 Written by Luciano Cirino 09/03/2022
-
