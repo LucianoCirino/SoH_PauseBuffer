@@ -1,6 +1,6 @@
 This ahk script allows you to "pause buffer" inputs in the Ship of Harkinian (SoH) OoT PC Port. 
-It achieves it by changing P1's controller status in SoH to "Keyboard" temporarily during unpause
-and then swapping it back to the first listed "Controller" once unpaused.
+It achieves it by changing P1's controller status in SoH's Controller Configuration to "Keyboard" 
+during unpause and then swapping it back to the first listed "Controller" once unpaused.
 
 🎮 Controls:
 	• DPAD_UP: 			Pause/Frame Advance Pause
