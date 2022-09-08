@@ -182,7 +182,7 @@ Main:
                }
 
             ;Eliminate retriggering lock-on if already being held
-  	       if ((state.bLeftTrigger=255) & !Getkeystate("z"))
+  	       if (Xpressed(XINPUT_GAMEPAD_LEFT_SHOULDER) & !Getkeystate("z"))
 	            send {z down}
 
                ;Give time for Controller command to reach SoH
