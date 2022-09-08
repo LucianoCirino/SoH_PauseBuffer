@@ -19,8 +19,8 @@ during unpause and then swapping it back to the first listed "Controller" once u
 ⚠ Warnings:
 	• Script was designed to be used with an XInput Controller (Gamecube + Delfinovin for example).
 	• These controls must match in order for the script to function as intended:
-	  Keyboard:   <Start> = {Space bar}  |  <Z>   = {Z}
-	  Controller: <Start> = {Button 6}   |  <Z>   = {Button 9}
+	  Keyboard:    N64 "Start" = {Space bar}  |  N64 "Z"   = {Z}
+	  Controller:  N64 "Start" = {Button 6}   |  N64 "Z"   = {Button 9}
 	• Frame Advance repause will fail if you are pressing start on controller while game is unpausing.
 	• Frame Advance repause will "sometimes" fail to trigger (area dependant?).
 	• Input buffers will fail if you unpause by Saving Game.
