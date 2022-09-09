@@ -1,11 +1,11 @@
-﻿;;===============================[Precise Sleep]===============================
+﻿;;===============================[Timing Functions]===============================
 ;;Precision Sleep using DllCall
 PreciseSleep(duration) {
    DllCall("Sleep","UInt",duration)
 }
 
-;;Precise Sleep using QueryPerformanceCounter (Best)
-QPC(value){
+;;Precise Sleep using the QueryPerformanceCounter
+QPCsleep(value){
     static Frequency
     if !Frequency
         DllCall("QueryPerformanceFrequency", "Int64*", Frequency)
@@ -16,6 +16,16 @@ QPC(value){
     until (Current >= Finish)
     return
 }
+
+;Using Query Performance as a timer: QPC() behaves like a more precise A_TickCount
+*/
+QPC() { ; microseconds precision ; borrowed from wolf_II 
+    static Freq, init := DllCall("QueryPerformanceFrequency", "Int64P", Freq)
+	local Count
+    DllCall("QueryPerformanceCounter", "Int64P", Count)
+    Return (Count / Freq)*1000 
+}
+
 ;;===============================[Kill All AHK]================================
 AHKPanic(Kill=0, Pause=0, Suspend=0, SelfToo=0) {
 DetectHiddenWindows, On

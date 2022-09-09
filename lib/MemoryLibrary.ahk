@@ -7,7 +7,7 @@ global prcHandle := Memory_GetProcessHandle(prcId)
 
 Global SoHversion := 1 
 /*
-[0] Rachael Alfa 3.0.0
+[0] Rachael Alfa 3.0.0 (discontinued)
 [1] Rachael Bravo 3.0.1
 [2] Zhora Develop Build 151
 */
@@ -23,13 +23,15 @@ Case 1: ;Rachael Bravo 3.0.1 pointers
      global GameStateOffsets := [0xECA038, 0x110]
      global P1ControllerOffsets := [0xEB3430, 0x00 , 0x00]
      global ControllerCountOffsets := [0xEB3430, 0x00 , 0xC]
-     global PauseMenuOffsets := [0xE4E798, 0x11190]	
+     global PauseMenuOffsets := [0xE4E798, 0x11190]
+     global FocusStateOffsets := [0xE4E798, 0x350 + 0x1B0]	
 
 Case 2: ;Zhora Develop Build 151 pointers
      global GameStateOffsets := [0xDDD398,0x110]
      global P1ControllerOffsets := [0xDABA50, 0x40, 0x00 , 0x00]
      global ControllerCountOffsets := [0xDABA50, 0x40, 0x00 , 0xC]
-     global PauseMenuOffsets := [0xDE4130, 0x11150]	
+     global PauseMenuOffsets := [0xDE4130, 0x11150]
+     global FocusStateOffsets := [0xD61AD8, 0x310 + 0x1B0]
 
 Default: 
      ;N/A    
@@ -40,6 +42,7 @@ global GameStateAddress := GetAddressPtrChain(GameStateOffsets)
 global P1ControllerAddress := GetAddressPtrChain(P1ControllerOffsets)
 global ControllerCountAddress := GetAddressPtrChain(ControllerCountOffsets)
 global PauseMenuAddress := GetAddressPtrChain(PauseMenuOffsets)
+global FocusStateAddress := GetAddressPtrChain(FocusStateOffsets)
 
 ;;Run to reinitialize Memory Reading
 MemReInit(){
@@ -54,6 +57,7 @@ MemReInit(){
    P1ControllerAddress := GetAddressPtrChain(P1ControllerOffsets)
    ControllerCountAddress := GetAddressPtrChain(ControllerCountOffsets)
    PauseMenuAddress := GetAddressPtrChain(PauseMenuOffsets)
+   FocusStateAddress := GetAddressPtrChain(FocusStateOffsets)
 }
 
 ;;=======================[SoH Mem Read/Write Functions]========================
@@ -65,7 +69,7 @@ GetP1Controller(){
 ;Function to write to the used index of controller 1, you can feed it an integer or "Keyboard" & "Disconnected"
 ChangeP1Controller(Index){
 
-   MaxIndex := Memory_Read(prcHandle, ControllerCountAddress, "byte", 2)
+   MaxIndex := Memory_Read(prcHandle, ControllerCountAddress, "byte", 1)
 
    if (Index = "Keyboard")
       Memory_Write(prcHandle, P1ControllerAddress, MaxIndex-1)
@@ -81,13 +85,9 @@ GetGameState(){
 }
 
 ;;Get focus camera status
-;[0: Unfocused , 1: Focused]
+;[00: Unfocused , 01: Focused,  02: Focused-Green , 03: Reading Sign, 04: Focused-Yellow]
 GetFocusStatus(){
-   ;Actual memory read returns [0: Default on Load, 1: Unfocused , 2: Focused-Nothing, 5: Focused-Enemy(yellow), 8: Focused-Other(green)]
-   if (Memory_Read(prcHandle, FocusDetectAddress, "byte", 4) > 1)
-      return 1
-   else
-      return 0
+   return Memory_Read(prcHandle, FocusStateAddress, "byte", 1)
 }
 
 ;Return the # of summoned bombs (Max 3)
