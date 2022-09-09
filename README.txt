@@ -22,4 +22,4 @@ during unpause and then swapping it back to the first listed "Controller" once u
 	• Frame Advance repause will fail if you are pressing start on controller while game is unpausing.
 	• Input buffers will fail if you unpause by Saving Game.
 
-Written by Luciano Cirino 09/03/2022
+Written by Luciano Cirino 09/09/2022
